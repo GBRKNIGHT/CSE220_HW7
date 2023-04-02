@@ -39,7 +39,25 @@ matrix_sf* add_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
 }
 
 matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
-   return NULL;
+    int NR = mat1->num_rows; // how many elements in one column
+    int NC = mat2->num_cols; // how many elements in one row
+    int inter = mat1->num_cols;
+    int total_elements = NR * NC;
+    int* mat1_value = mat1->values;
+    int* mat2_value = mat2->values;
+    int* new_value = (int*)malloc(NR * NC* sizeof(int));
+    for(int i = 0; i < NR; i++){
+        for(int j = 0; j < NC; j++){
+            int this_element = 0;
+            for(int k = 0; k < inter; k++){
+                this_element+= (mat1_value[inter * i + k] * mat2_value[NC * k + j]);
+            }
+            new_value[i*NC + j] = this_element;
+        }
+    }
+    matrix_sf* multi_result = copy_matrix((unsigned int)NR,(unsigned int) NC, new_value);
+    free(new_value);
+    return multi_result;
 }
 
 matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
