@@ -24,7 +24,18 @@ void free_bst_sf(bst_sf *root) {
 }
 
 matrix_sf* add_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
-    return NULL;
+    int NR = mat1->num_rows;
+    int NC = mat1->num_cols;
+    int product = NR * NC;
+    int* value_1 = mat1->values;
+    int* value_2 = mat2->values;
+    int* new_value = (int*)malloc(NR * NC * sizeof(int));
+    for(int i = 0; i < product; i++){
+        *(new_value+i) = value_1[i] + value_2[i];
+    }
+    matrix_sf* add_result = copy_matrix(NR, NC, new_value);
+    free(new_value);
+    return add_result;
 }
 
 matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
