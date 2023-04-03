@@ -61,7 +61,22 @@ matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
 }
 
 matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
-    return NULL;
+    int NR = mat->num_cols;// how many elements in one column
+    int NC = mat->num_rows;// how many elements in one row
+    int total_elements = NR * NC;
+    int* new_value = (int*)malloc(NR * NC * sizeof(int));
+     // size remain unchanged after transpose
+    int* old_value = mat->values;
+    for(int i = 0; i < total_elements; i++){
+        int row_new = i / NC;
+        int col_new = i % NC;
+        int row_origin = col_new;//switch position
+        int col_origin = row_new;
+        new_value[i] = old_value[row_origin * NR + col_origin];// put in
+    }
+    matrix_sf* trans_result = copy_matrix(NR, NC, new_value);
+    free(new_value);
+    return trans_result;
 }
 
 // create a new string to make sure the number of spaces between each 
