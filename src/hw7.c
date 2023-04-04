@@ -16,24 +16,37 @@ bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
     return NULL;
 }
 
+
+
 matrix_sf* find_bst_sf(char name, bst_sf *root) {
     if(root->mat->name == name){
-        return NULL;
+        return root->mat;
     }
     bst_sf* cursor = root;
-    while((cursor->left_child != NULL) || (cursor->right_child != NULL) )
-    {
-
+    find_bst_sf(name,cursor->left_child);
+    if(cursor->mat->name == name){
+        return cursor->mat;
     }
-    return NULL;
+    else{
+        return NULL;
+    }
+    find_bst_sf(name,cursor->right_child);
+}
+
+
+void free_cursor(bst_sf* cursor){
+    free_cursor(cursor->left_child);
+    free_cursor(cursor->right_child);
+    free(cursor);
 }
 
 void free_bst_sf(bst_sf *root) {
     bst_sf* cursor = root;
-    free_bst_sf(root->left_child);
-    free_bst_sf(root->right_child);
-    free(cursor);
+    free_cursor(cursor);
+    free(root);
 }
+
+
 
 matrix_sf* add_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
     int NR = mat1->num_rows;
@@ -200,8 +213,21 @@ matrix_sf* create_matrix_sf(char name, const char *expr)
 }
 
 char* infix2postfix_sf(char *infix) {
-
-    return NULL;
+    int length = strlen(infix);
+    int num_punct = 0;
+    int num_alnum = 0;
+    for(int i = 0; i < length; i++){
+        if(ispunct(infix[i]))// if it is a punct 
+        {
+            num_punct ++;
+            continue;
+        }
+        if(isalnum(infix[i])){
+            num_alnum++;
+        }
+    }
+    
+    return infix;
 }
 
 matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
