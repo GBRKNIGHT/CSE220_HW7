@@ -222,6 +222,25 @@ matrix_sf* create_matrix_sf(char name, const char *expr)
     return struct_matrix;
 }
 
+
+// This code is inspired by the provided instruction.
+// https://www.geeksforgeeks.org/convert-infix-expression-to-postfix-expression/
+int precedence(char operator)
+{
+    switch (operator) 
+    {
+        case '+':
+            return 1;
+        case '*':
+            return 2;
+        case '\'':
+            return 3;
+        case '(':
+            return 4;
+        default:
+            return -1;
+    }
+}
 char* infix2postfix_sf(char *infix) {
     //use stack to do infix to postfix 
     int length = strlen(infix);
