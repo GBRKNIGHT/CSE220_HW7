@@ -225,27 +225,87 @@ matrix_sf* create_matrix_sf(char name, const char *expr)
 
 // This code is inspired by the provided instruction.
 // https://www.geeksforgeeks.org/convert-infix-expression-to-postfix-expression/
+
+// show the precedence of each operators, parenthesis has highest. And + has lowest. 
 int precedence(char operator)
 {
-    switch (operator) 
-    {
-        case '+':
-            return 1;
-        case '*':
-            return 2;
-        case '\'':
-            return 3;
-        case '(':
-            return 4;
-        default:
-            return -1;
+    if(operator == '+'){
+        return 1;
+    }
+    if(operator == '*'){
+        return 2;
+    }
+    if(operator == '\''){
+        return 3;
+    }
+    else{
+        return -1;
     }
 }
-char* infix2postfix_sf(char *infix) {
-    //use stack to do infix to postfix 
-    int length = strlen(infix);
-    return infix;
+
+
+int isoprea(char cursor){
+    if(cursor == '+' || cursor == '*' || cursor == '\'' || cursor == '(' || cursor == ')')\
+    {
+        return 1;
+    }
+    else{
+        return 0;
+    }
 }
+
+
+char* infix2postfix_sf(char* infix)
+{
+    int length = strlen(infix);
+    char* postfix = (char*)malloc(sizeof(char) * MAX_LINE_LEN);
+    char* stack = (char*)malloc(sizeof(char) * MAX_LINE_LEN);
+    int top = -1;
+    int i= 0, j = 0;
+
+    while (i < length) {
+        if (isalnum(infix[i])) {
+            postfix[j] = infix[i];
+            j++;
+        } 
+        // we need to make sure the parenthesis has the highest precedency.
+        if (infix[i] == '(') 
+        {// if left, push it into stack
+            top++;
+            stack[top] = infix[i];
+        } 
+        else if (infix[i] == ')') 
+        {// right exist only if left exist
+            while (top > -1 && stack[top] != '(') 
+            {   //move to post fix 
+                postfix[j] = stack[top];
+                j++;
+                top--;
+            }
+                top--;
+        } 
+        else if (isoprea(infix[i])) {
+            while (top > -1 && precedence(stack[top]) >= precedence(infix[i])) 
+            {
+                postfix[j] = stack[top];
+                j++;
+                top--;
+            }
+            top++;
+            stack[top] = infix[i];
+        }      
+        i++;
+    }
+    while (top != -1) {
+        postfix[j] = stack[top];
+        j++;
+        top--;
+    }
+    postfix[j] = '\0';
+    free(stack);
+    return postfix;
+}
+
 
 matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
     return NULL;
