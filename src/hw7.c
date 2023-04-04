@@ -23,16 +23,26 @@ matrix_sf* find_bst_sf(char name, bst_sf *root) {
         return root->mat;
     }
     bst_sf* cursor = root;
+    matrix_sf* result_left = find_bst_sf(name,cursor->left_child);
+    matrix_sf* result_right = find_bst_sf(name,cursor->right_child);
+    if(result_left == NULL && result_right == NULL){
+        return NULL;
+    }
+    if(result_left != NULL){
+        return result_left;
+    }
+    if(result_right != NULL){
+        return result_right;
+    }
+}
+
+matrix_sf* find_cursor(char name, bst_sf* cursor){
     find_bst_sf(name,cursor->left_child);
+    find_bst_sf(name,cursor->right_child);
     if(cursor->mat->name == name){
         return cursor->mat;
     }
-    else{
-        return NULL;
-    }
-    find_bst_sf(name,cursor->right_child);
 }
-
 
 void free_cursor(bst_sf* cursor){
     free_cursor(cursor->left_child);
@@ -213,20 +223,8 @@ matrix_sf* create_matrix_sf(char name, const char *expr)
 }
 
 char* infix2postfix_sf(char *infix) {
+    //use stack to do infix to postfix 
     int length = strlen(infix);
-    int num_punct = 0;
-    int num_alnum = 0;
-    for(int i = 0; i < length; i++){
-        if(ispunct(infix[i]))// if it is a punct 
-        {
-            num_punct ++;
-            continue;
-        }
-        if(isalnum(infix[i])){
-            num_alnum++;
-        }
-    }
-    
     return infix;
 }
 
