@@ -39,12 +39,17 @@ bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
         left_tree->mat = mat;
         left_tree->left_child = NULL;
         left_tree->right_child = NULL;
-        root->right_child = left_tree;  
+        root->left_child = left_tree;  
         return root;
     }
-    insert_bst_sf(mat,root->right_child);
-    insert_bst_sf(mat,root->left_child);
-    return NULL; 
+    if(mat->name < root->mat->name){
+        insert_bst_sf(mat,root->left_child);
+    }
+    else
+    {
+        insert_bst_sf(mat,root->right_child);
+    }
+    return root; 
 }
 
 
@@ -418,3 +423,32 @@ void print_matrix_sf(matrix_sf *mat) {
     }
     printf("\n");
 }
+
+// void inorder_sf(bst_sf *root, char *output) {
+//     if (!root) return;
+//     inorder_sf(root->left_child, output);
+//     char s[2] = {root->mat->name};
+//     strcat(output, s);
+//     inorder_sf(root->right_child, output);
+// }
+// int compare_chars_sf(const void* a, const void* b) { return (*(char*)a - *(char*)b); }
+// void sort_string_sf(char* str) { qsort(str, strlen(str), sizeof(char), compare_chars_sf); }
+
+// int main(){
+//     bst_sf *root = NULL;
+//     char names[] = "HABETZ";
+//     matrix_sf *mats[strlen(names)];
+//     for (size_t i = 0; i < strlen(names); i++) {
+//         mats[i] = malloc(sizeof(matrix_sf));
+//         mats[i]->name = names[i];
+//         root = insert_bst_sf(mats[i], root);
+//     }
+//     char output[27] = {0};
+//     inorder_sf(root, output);
+//     sort_string_sf(names);
+//     // cr_expect_arr_eq(output, names, strlen(names), "BST does not store the nodes in sorted order.");
+//     for (size_t i = 0; i < strlen(names); i++)
+//         free(mats[i]);
+//     // Note: test does not deallocate memory of BST.    
+//     return 0;
+// }
