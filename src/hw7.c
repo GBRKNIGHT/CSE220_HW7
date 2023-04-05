@@ -18,14 +18,12 @@ bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
     int NC = mat->num_cols;
     int* values = mat->values;
     if(root == NULL){
-        bst_sf* new_tree = malloc(sizeof(bst_sf));
+        bst_sf* new_tree = malloc(sizeof(mat));
         new_tree->mat = mat;
         new_tree->left_child = NULL;
         new_tree->right_child = NULL;
         return new_tree;
     }
-    insert_bst_sf(mat,root->right_child);
-    insert_bst_sf(mat,root->left_child);
     if((int)(root->mat->name) < (int)(mat->name) && root->right_child == NULL)
     {
         matrix_sf* new_matrix = copy_matrix(NR, NC, values);
@@ -40,27 +38,31 @@ bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
         root->left_child->mat = new_matrix;
         return root;
     }
-    return root;
+    insert_bst_sf(mat,root->right_child);
+    insert_bst_sf(mat,root->left_child);
+    return NULL; 
 }
 
 
 
 matrix_sf* find_bst_sf(char name, bst_sf *root) {
+    if(root == NULL){
+        return NULL;
+    }
     if(root->mat->name == name){
-        return root->mat;
+        matrix_sf* matrix = copy_matrix(root->mat->num_rows, 
+                            root->mat->num_cols, root->mat->values);
+        matrix->name = name;
+        return matrix;
     }
-    bst_sf* cursor = root;
-    matrix_sf* result_left = find_bst_sf(name,cursor->left_child);
-    matrix_sf* result_right = find_bst_sf(name,cursor->right_child);
-    // if(result_left == NULL && result_right == NULL){
-    //     return NULL;
-    // }
-    if(result_left != NULL){
-        return result_left;
+    matrix_sf* result = NULL;
+    if(root->left_child != NULL){
+        result = find_bst_sf(name, root->left_child);
     }
-    if(result_right != NULL){
-        return result_right;
+    if(root->right_child != NULL){
+        result = find_bst_sf(name, root->right_child);
     }
+    return result;
 }
 
 matrix_sf* find_cursor(char name, bst_sf* cursor){
