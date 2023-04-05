@@ -13,29 +13,33 @@ matrix_sf *copy_matrix(unsigned int num_rows, unsigned int num_cols, int values[
 
 
 bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
-    char name = mat->name;
-    int NR = mat->num_rows;
-    int NC = mat->num_cols;
-    int* values = mat->values;
+    // char name = mat->name;
+    // int NR = mat->num_rows;
+    // int NC = mat->num_cols;
+    // int* values = mat->values;
     if(root == NULL){
-        bst_sf* new_tree = malloc(sizeof(mat));
+        bst_sf* new_tree = (bst_sf*)malloc(sizeof(bst_sf*) * 2 + sizeof(matrix_sf*));
         new_tree->mat = mat;
         new_tree->left_child = NULL;
         new_tree->right_child = NULL;
         return new_tree;
     }
-    if((int)(root->mat->name) < (int)(mat->name) && root->right_child == NULL)
+    if((root->mat->name) < (mat->name) && root->right_child == NULL)
     {
-        matrix_sf* new_matrix = copy_matrix(NR, NC, values);
-        new_matrix->name = name;
-        root->right_child->mat = new_matrix;
+        bst_sf* right_tree = (bst_sf*)malloc(sizeof(bst_sf*) * 2 + sizeof(matrix_sf*));
+        right_tree->mat = mat;
+        right_tree->left_child = NULL;
+        right_tree->right_child = NULL;
+        root->right_child = right_tree;  
         return root;
     }
-    else if((int)(root->mat->name) > (int)mat->name && root->left_child == NULL)
+    else if((root->mat->name) > mat->name && root->left_child == NULL)
     {
-        matrix_sf* new_matrix = copy_matrix(NR, NC, values);
-        new_matrix->name = name;
-        root->left_child->mat = new_matrix;
+        bst_sf* left_tree = (bst_sf*)malloc(sizeof(bst_sf*) * 2 + sizeof(matrix_sf*));
+        left_tree->mat = mat;
+        left_tree->left_child = NULL;
+        left_tree->right_child = NULL;
+        root->right_child = left_tree;  
         return root;
     }
     insert_bst_sf(mat,root->right_child);
@@ -65,13 +69,7 @@ matrix_sf* find_bst_sf(char name, bst_sf *root) {
     return result;
 }
 
-matrix_sf* find_cursor(char name, bst_sf* cursor){
-    find_bst_sf(name,cursor->left_child);
-    find_bst_sf(name,cursor->right_child);
-    if(cursor->mat->name == name){
-        return cursor->mat;
-    }
-}
+
 
 void free_cursor(bst_sf* cursor){
     free_cursor(cursor->left_child);

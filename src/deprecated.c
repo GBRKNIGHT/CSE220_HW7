@@ -30,3 +30,12 @@
 //     // }
 //     return infix;
 // }
+
+
+// matrix_sf* find_cursor(char name, bst_sf* cursor){
+//     find_bst_sf(name,cursor->left_child);
+//     find_bst_sf(name,cursor->right_child);
+//     if(cursor->mat->name == name){
+//         return cursor->mat;
+//     }
+// }
