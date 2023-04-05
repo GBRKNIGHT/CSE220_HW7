@@ -59,16 +59,13 @@ matrix_sf* find_bst_sf(char name, bst_sf *root) {
         return NULL;
     }
     if(root->mat->name == name){
-        matrix_sf* matrix = copy_matrix(root->mat->num_rows, 
-                            root->mat->num_cols, root->mat->values);
-        matrix->name = name;
-        return matrix;
+        return root->mat;
     }
     matrix_sf* result = NULL;
     if(root->left_child != NULL){
         result = find_bst_sf(name, root->left_child);
     }
-    if(root->right_child != NULL){
+    if(root->right_child != NULL && !result){
         result = find_bst_sf(name, root->right_child);
     }
     return result;
@@ -443,12 +440,13 @@ void print_matrix_sf(matrix_sf *mat) {
 //         mats[i]->name = names[i];
 //         root = insert_bst_sf(mats[i], root);
 //     }
-//     char output[27] = {0};
-//     inorder_sf(root, output);
-//     sort_string_sf(names);
-//     // cr_expect_arr_eq(output, names, strlen(names), "BST does not store the nodes in sorted order.");
+//     char *search_names = "BTZ";
+//     matrix_sf *mat;
+//     for (size_t i = 0; i < strlen(search_names); i++) {
+//         mat = find_bst_sf(search_names[i], root);
+//     } 
+    
 //     for (size_t i = 0; i < strlen(names); i++)
 //         free(mats[i]);
-//     // Note: test does not deallocate memory of BST.    
 //     return 0;
 // }
