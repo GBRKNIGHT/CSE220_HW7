@@ -337,7 +337,63 @@ char* infix2postfix_sf(char* infix)
 
 
 matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
-    return NULL;
+    if(root == NULL || expr == NULL){
+        return NULL;
+    }
+    
+    char* pos_expr = infix2postfix_sf(expr);
+    int exp_len = strlen(pos_expr);
+    matrix_sf** matrix_stack = (matrix_sf**)malloc(sizeof(matrix_sf**) * (exp_len / 2));
+    int stack_counter = 0;
+    for(int i = 0; i < exp_len; i++){
+        if(isalnum(pos_expr[i])){
+            matrix_sf* found_matrix = find_bst_sf(pos_expr[i], root);
+            matrix_sf* this_matrix = (copy_matrix(found_matrix->num_rows, found_matrix->num_cols, found_matrix->values));
+            matrix_stack[stack_counter] = this_matrix;
+            stack_counter++;
+            // push a element to the stack 
+        }
+        else if(pos_expr[i] == '\''){
+            matrix_sf* being_trans = matrix_stack[stack_counter - 1];
+            matrix_sf* transposed = transpose_mat_sf(being_trans);
+            free(being_trans);
+            matrix_stack[stack_counter - 1] = transposed;
+            continue;
+        }
+        else if(pos_expr[i] == '*'){
+            matrix_sf* being_mul1 = matrix_stack[stack_counter - 2];
+            matrix_sf* being_mul2 = matrix_stack[stack_counter - 1];
+            matrix_sf* product = mult_mats_sf(being_mul1, being_mul2);
+            free(being_mul1);
+            free(being_mul2);
+            stack_counter -= 2;
+            matrix_stack[stack_counter] = product;
+            stack_counter += 1;
+            continue;
+        }
+        else if(pos_expr[i] == '+'){
+            matrix_sf* being_add1 = matrix_stack[stack_counter - 2];
+            matrix_sf* being_add2 = matrix_stack[stack_counter - 1];
+            matrix_sf* sum = add_mats_sf(being_add1, being_add2);
+            free(being_add1);
+            free(being_add2);
+            stack_counter -= 2;
+            matrix_stack[stack_counter] = sum;
+            stack_counter += 1;
+            continue;
+        }
+        else{
+            printf("error! \n");
+        }
+    }
+    int NR = matrix_stack[0]->num_rows;
+    int NC = matrix_stack[0]->num_cols;
+    int* value = matrix_stack[0]->values;
+    matrix_sf* top = copy_matrix(NR, NC, value);
+    free(matrix_stack[0]);
+    free(matrix_stack);
+    top->name = name;
+    return top;
 }
 
 matrix_sf *execute_script_sf(char *filename) {
@@ -431,22 +487,72 @@ void print_matrix_sf(matrix_sf *mat) {
 // int compare_chars_sf(const void* a, const void* b) { return (*(char*)a - *(char*)b); }
 // void sort_string_sf(char* str) { qsort(str, strlen(str), sizeof(char), compare_chars_sf); }
 
+// bst_sf* build_bst() {
+//     matrix_sf *A = copy_matrix(3, 5, (int[]){-4, 18, 6, 7, 10, -14, 29, 8, 21, -99, 0, 7, 5, 2, -9});
+//     A->name = 'A';
+//     matrix_sf *B = copy_matrix(3, 5, (int[]){10, 9, -2, -33, 22, 44, 10, 12, 72, 52, -88, 17, 16, 14, -9});
+//     B->name = 'B';
+//     matrix_sf *C = copy_matrix(1, 4, (int[]){-123, 47, -4, 140});  
+//     C->name = 'C';
+//     matrix_sf *D = copy_matrix(1, 4, (int[]){-16, 122, 135, 107});
+//     D->name = 'D';
+//     matrix_sf *E = copy_matrix(6, 4, (int[]){83, -22, 56, -1, 97, 94, 135, -10, 84, 40, -83, -4, 79, 28, 52, -101, 138, 146, 99, 0, -23, -73, -39, -47});
+//     E->name = 'E';
+//     matrix_sf *F = copy_matrix(4, 7, (int[]){-77, -20, 111, -2, 41, 117, 118, 21, -29, -45, 135, 98, 54, 131, 54, 1, 80, 143, -127, 148, 114, -81, 87, -33, -2, -6, 115, 59});
+//     F->name = 'F';
+//     matrix_sf *G = copy_matrix(7, 1, (int[]){-38, 4, 46, -14, -102, -72, -27});
+//     G->name = 'G';
+//     matrix_sf *H = copy_matrix(1, 5, (int[]){52, 65, -94, -73, -48});
+//     H->name = 'H';
+//     matrix_sf *I = copy_matrix(4, 4, (int[]){-7, 78, -87, -113, -144, -94, 22, -75, -137, -130, -113, -106, 85, -120, 50, 55});
+//     I->name = 'I';
+//     matrix_sf *J = copy_matrix(6, 3, (int[]){121, -1, 128, 78, -138, 138, -61, 51, -35, -84, 125, -83, -78, 138, 2, 81, -5, -36});
+//     J->name = 'J';
+//     bst_sf* Anode = malloc(sizeof(bst_sf));
+//     Anode->mat = A;
+//     Anode->left_child = NULL;
+//     Anode->right_child = NULL;
+//     bst_sf* Cnode = malloc(sizeof(bst_sf));
+//     Cnode->mat = C;
+//     Cnode->left_child = NULL;
+//     Cnode->right_child = NULL;
+//     bst_sf* Hnode = malloc(sizeof(bst_sf));
+//     Hnode->mat = H;
+//     Hnode->left_child = NULL;
+//     Hnode->right_child = NULL;
+//     bst_sf* Jnode = malloc(sizeof(bst_sf));
+//     Jnode->mat = J;
+//     Jnode->left_child = NULL;
+//     Jnode->right_child = NULL;
+//     bst_sf* Bnode = malloc(sizeof(bst_sf));
+//     Bnode->mat = B;
+//     Bnode->left_child = Anode;
+//     Bnode->right_child = Cnode;
+//     bst_sf* Fnode = malloc(sizeof(bst_sf));
+//     Fnode->mat = F;
+//     Fnode->left_child = NULL;
+//     Fnode->right_child = NULL;
+//     bst_sf* Inode = malloc(sizeof(bst_sf));
+//     Inode->mat = I;
+//     Inode->left_child = Hnode;
+//     Inode->right_child = Jnode;
+//     bst_sf* Dnode = malloc(sizeof(bst_sf));
+//     Dnode->mat = D;
+//     Dnode->left_child = Bnode;
+//     Dnode->right_child = NULL;
+//     bst_sf* Gnode = malloc(sizeof(bst_sf));
+//     Gnode->mat = G;
+//     Gnode->left_child = Fnode;
+//     Gnode->right_child = Inode;
+//     bst_sf* Enode = malloc(sizeof(bst_sf));
+//     Enode->mat = E;
+//     Enode->left_child = Dnode;
+//     Enode->right_child = Gnode;
+//     return Enode;
+// }
+
 // int main(){
-//     bst_sf *root = NULL;
-//     char names[] = "HABETZ";
-//     matrix_sf *mats[strlen(names)];
-//     for (size_t i = 0; i < strlen(names); i++) {
-//         mats[i] = malloc(sizeof(matrix_sf));
-//         mats[i]->name = names[i];
-//         root = insert_bst_sf(mats[i], root);
-//     }
-//     char *search_names = "BTZ";
-//     matrix_sf *mat;
-//     for (size_t i = 0; i < strlen(search_names); i++) {
-//         mat = find_bst_sf(search_names[i], root);
-//     } 
-    
-//     for (size_t i = 0; i < strlen(names); i++)
-//         free(mats[i]);
+//     bst_sf* root = build_bst();
+//     matrix_sf* result = evaluate_expr_sf('R', "(A + B) * H' * D", root);
 //     return 0;
 // }
