@@ -397,66 +397,36 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
 }
 
 matrix_sf *execute_script_sf(char *filename) {
-    // FILE* input = fopen(filename, "r+");
-    // int matrix_count = 0;
-    // int expression_count = 0;
-    // int num_of_lines = 0;
-    // while(1){
-    //     size_t bytes_read;
-    //     size_t size = MAX_LINE_LEN;
-    //     char *string = NULL;
-    //     string = (char *) malloc (size * sizeof(char));
-    //     bytes_read = getline (&string, &size, input); 
-    //     num_of_lines++;
-    //     if (bytes_read == EOF){
-    //         free(string);
-    //         break;
-    //     }    
-    //     if(bytes_read == 0){
-    //         free(string);
-    //         break;
-    //     } 
-    //     if(strstr(string, "[") != 0) // if found bracket
-    //     {
-    //         matrix_count++;
-    //     }
-    //     else
-    //     {
-    //         expression_count++;
-    //     }
-    // }
-    // char* matrixs[MAX_LINE_LEN] = malloc(sizeof(matrixs[MAX_LINE_LEN]) * matrix_count);
-    // char* expression[MAX_LINE_LEN] = malloc(sizeof(expression[MAX_LINE_LEN]) * expression_count);
-    // int which_matrix = 0;
-    // int which_expression = 0;
-    // for(int i = 0; i < num_of_lines; i++)
-    // {
-    //     size_t bytes_read;
-    //     size_t size = MAX_LINE_LEN;
-    //     char *string = NULL;
-    //     string = (char *) malloc (size * sizeof(char));
-    //     bytes_read = getline (&string, &size, input); 
-    //     if (bytes_read == EOF){
-    //         free(string);
-    //         break;
-    //     }    
-    //     if(bytes_read == 0){
-    //         free(string);
-    //         break;
-    //     } 
-    //     if(strstr(string, "[") != 0) // if found bracket
-    //     {
-    //         matrixs[which_matrix] = string;
-    //         which_matrix++;
-    //     }
-    //     else
-    //     {
-    //         expression[which_expression] = string;
-    //         which_expression++;
-    //     }
-    // }
-    // free(matrixs);
-    // free(expression);
+    // need to restructure this code, think about it. 
+    FILE* input = fopen(filename, "r+");
+    int matrix_count = 0;
+    int expression_count = 0;
+    int num_of_lines = 0;
+    while(1){
+        size_t bytes_read;
+        size_t size = MAX_LINE_LEN;
+        char *string = NULL;
+        string = (char *) malloc (size * sizeof(char));
+        bytes_read = getline (&string, &size, input); 
+        num_of_lines++;
+        if (bytes_read == EOF){
+            free(string);
+            break;
+        }    
+        if(bytes_read == 0){
+            free(string);
+            break;
+        } 
+        if(strstr(string, "[") != 0) // if found bracket
+        {
+            
+            matrix_count++;
+        }
+        else
+        {
+            expression_count++;
+        }
+    }
     return NULL;
 }
 
