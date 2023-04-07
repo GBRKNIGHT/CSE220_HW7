@@ -12,6 +12,8 @@ matrix_sf *copy_matrix(unsigned int num_rows, unsigned int num_cols, int values[
 }
 
 
+
+
 bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
     // char name = mat->name;
     // int NR = mat->num_rows;
@@ -55,34 +57,40 @@ bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
 
 
 matrix_sf* find_bst_sf(char name, bst_sf *root) {
+    // printf("IN BST: %p\n", root);
+    // printf("Left Child: %p\n", root->left_child);
+    // printf("Right Child: %p\n", root->right_child);
+    // printf("IN BST looking for: %c\n", name);
+    // printf("IN BST Current name: %c\n", root->mat->name);
     if(root == NULL){
         return NULL;
     }
     if(root->mat->name == name){
         return root->mat;
     }
-    matrix_sf* result = NULL;
-    if(root->left_child != NULL){
-        result = find_bst_sf(name, root->left_child);
+    if(name < root->mat->name){
+        return find_bst_sf(name, root->left_child);
+    }else{
+        return find_bst_sf(name, root->right_child);
     }
-    if(root->right_child != NULL && !result){
-        result = find_bst_sf(name, root->right_child);
-    }
-    return result;
+    return NULL;
 }
 
 
 
 void free_cursor(bst_sf* cursor){
-    free_cursor(cursor->left_child);
-    free_cursor(cursor->right_child);
-    free(cursor);
+    if (cursor)
+    {
+        free_cursor(cursor->left_child);
+        free_cursor(cursor->right_child);
+        free(cursor->mat);
+        free(cursor);
+    }
 }
 
 void free_bst_sf(bst_sf *root) {
     bst_sf* cursor = root;
     free_cursor(cursor);
-    free(root);
 }
 
 
@@ -340,14 +348,16 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
     if(root == NULL || expr == NULL){
         return NULL;
     }
-    
+    // printf("BST: %p\n", root);
     char* pos_expr = infix2postfix_sf(expr);
     int exp_len = strlen(pos_expr);
     matrix_sf** matrix_stack = (matrix_sf**)malloc(sizeof(matrix_sf**) * (exp_len));
     int stack_counter = 0;
     for(int i = 0; i < exp_len; i++){
         if(isalnum(pos_expr[i])){
+            printf("Found: %c\n", pos_expr[i]);
             matrix_sf* found_matrix = find_bst_sf(pos_expr[i], root);
+            // printf("Matrix Address: %p\n", found_matrix);
             matrix_sf* this_matrix = (copy_matrix(found_matrix->num_rows, found_matrix->num_cols, found_matrix->values));
             matrix_stack[stack_counter] = this_matrix;
             stack_counter++;
@@ -392,6 +402,7 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
     matrix_sf* top = copy_matrix(NR, NC, value);
     free(matrix_stack[0]);
     free(matrix_stack);
+    free(pos_expr);
     top->name = name;
     return top;
 }
@@ -420,13 +431,20 @@ matrix_sf *execute_script_sf(char *filename) {
             free(string);
             break;
         } 
-        bytes_read = getline (&string, &size, input); 
         num_of_lines++;
         if(strstr(string, "[") != 0) 
         // if found bracket, this is a matrix, need to create a matrix, then
         // insert it into the current binary tree. 
         {
-            matrix_sf* new_matrix_matrix = create_matrix_sf(string[0], string);
+            
+            char* equal_sign  = strchr(string, '=');
+            int index_equal = (int)(equal_sign - string);
+            // char* matrix = (char*)malloc(sizeof(char)*(strlen(string) - index_equal));
+            // for(int i = 0; i < strlen(string) - index_equal + 1; i++){
+            //     matrix[i] = string[i + index_equal];
+            // }
+            // matrix[strlen(matrix)] = '\0';
+            matrix_sf* new_matrix_matrix = create_matrix_sf(string[0], string+index_equal);
             binary_search_tree = insert_bst_sf(new_matrix_matrix, binary_search_tree);
             matrix_count++;
         }
@@ -434,11 +452,19 @@ matrix_sf *execute_script_sf(char *filename) {
         {
             // if this is an expression, we need to perform calculations and add the result 
             // to the binary tree. 
-            matrix_sf* new_matrix_eva = evaluate_expr_sf(string[0], string, binary_search_tree);
+            char new_name = string[0];
+            char* equal_sign  = strchr(string, '=');
+            int index_equal = (int)(equal_sign - string);
+            // char* expression = (char*)malloc(sizeof(char)*(strlen(string) - index_equal));
+            // for(int i = 0; i < strlen(string) - index_equal + 1; i++){
+            //     expression[i] = string[i + index_equal];
+            // }
+            // expression[strlen(expression)] = '\0';
+            matrix_sf* new_matrix_eva = evaluate_expr_sf(new_name, string+index_equal, binary_search_tree);
             binary_search_tree = insert_bst_sf(new_matrix_eva, binary_search_tree);
             expression_count++;
         }
-        
+        bytes_read = getline (&string, &size, input); 
     }
     string = NULL;
     if(binary_search_tree != NULL && binary_search_tree->mat != NULL){
@@ -449,11 +475,14 @@ matrix_sf *execute_script_sf(char *filename) {
         matrix_sf* result = copy_matrix(result_NR, result_NC, result_value);
         result->name = result_name;
         free_bst_sf(binary_search_tree);
-        free(input);
         fclose(input);
+        free(string);
         return result;
     }
     else{
+        free_bst_sf(binary_search_tree);
+        fclose(input);
+        free(string);
         return NULL;
     }
     
@@ -550,6 +579,26 @@ void print_matrix_sf(matrix_sf *mat) {
 //     return Enode;
 // }
 
+// static char test_log_outfile[100];
+
+// #define TEST_TIMEOUT 10
+// #define TEST_INPUT_DIR "tests.in"
+// #define TEST_OUTPUT_DIR "tests.out"
+
+
+// void run_script_without_valgrind(char *script_file) {
+//     char executable[100];
+//     sprintf(executable, ".bin/execute_script");
+//     assert(access(executable, F_OK) == 0);
+//     char cmd[500];
+//     sprintf(test_log_outfile, "%s/%s.txt", TEST_OUTPUT_DIR, script_file);
+//     sprintf(cmd, "ulimit -f 300; ulimit -t 5; ./bin/execute_script %s > %s 2>&1",
+//         script_file, test_log_outfile);
+//     system(cmd);
+//     // expect_outfile_matches(script_file);
+// }
+
 // int main(){
+//     run_script_without_valgrind("script01"); 
 //     return 0;
 // }
