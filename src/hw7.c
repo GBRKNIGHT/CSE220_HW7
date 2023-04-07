@@ -343,7 +343,7 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
     
     char* pos_expr = infix2postfix_sf(expr);
     int exp_len = strlen(pos_expr);
-    matrix_sf** matrix_stack = (matrix_sf**)malloc(sizeof(matrix_sf**) * (exp_len / 2));
+    matrix_sf** matrix_stack = (matrix_sf**)malloc(sizeof(matrix_sf**) * (exp_len));
     int stack_counter = 0;
     for(int i = 0; i < exp_len; i++){
         if(isalnum(pos_expr[i])){
@@ -398,17 +398,20 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
 
 matrix_sf *execute_script_sf(char *filename) {
     // need to restructure this code, think about it. 
-    FILE* input = fopen(filename, "r+");
+    FILE* input = fopen(filename, "r");
     int matrix_count = 0;
     int expression_count = 0;
     int num_of_lines = 0;
+    bst_sf* binary_search_tree = NULL;
+    if(input == NULL){
+        return NULL;
+    }
+    size_t bytes_read = 0;
+    size_t size = MAX_LINE_LEN;
+    char *string = NULL;
+    string = (char *) malloc (size * sizeof(char));
+    bytes_read = getline(&string, &size, input);
     while(1){
-        size_t bytes_read;
-        size_t size = MAX_LINE_LEN;
-        char *string = NULL;
-        string = (char *) malloc (size * sizeof(char));
-        bytes_read = getline (&string, &size, input); 
-        num_of_lines++;
         if (bytes_read == EOF){
             free(string);
             break;
@@ -417,17 +420,43 @@ matrix_sf *execute_script_sf(char *filename) {
             free(string);
             break;
         } 
-        if(strstr(string, "[") != 0) // if found bracket
+        bytes_read = getline (&string, &size, input); 
+        num_of_lines++;
+        if(strstr(string, "[") != 0) 
+        // if found bracket, this is a matrix, need to create a matrix, then
+        // insert it into the current binary tree. 
         {
-            
+            matrix_sf* new_matrix_matrix = create_matrix_sf(string[0], string);
+            binary_search_tree = insert_bst_sf(new_matrix_matrix, binary_search_tree);
             matrix_count++;
         }
         else
         {
+            // if this is an expression, we need to perform calculations and add the result 
+            // to the binary tree. 
+            matrix_sf* new_matrix_eva = evaluate_expr_sf(string[0], string, binary_search_tree);
+            binary_search_tree = insert_bst_sf(new_matrix_eva, binary_search_tree);
             expression_count++;
         }
+        
     }
-    return NULL;
+    string = NULL;
+    if(binary_search_tree != NULL && binary_search_tree->mat != NULL){
+        char result_name = binary_search_tree->mat->name;
+        unsigned int result_NR = binary_search_tree->mat->num_rows;
+        unsigned int result_NC = binary_search_tree->mat->num_cols;
+        int* result_value = binary_search_tree->mat->values;
+        matrix_sf* result = copy_matrix(result_NR, result_NC, result_value);
+        result->name = result_name;
+        free_bst_sf(binary_search_tree);
+        free(input);
+        fclose(input);
+        return result;
+    }
+    else{
+        return NULL;
+    }
+    
 }
 
 
@@ -522,7 +551,5 @@ void print_matrix_sf(matrix_sf *mat) {
 // }
 
 // int main(){
-//     bst_sf* root = build_bst();
-//     matrix_sf* result = evaluate_expr_sf('R', "(A + B) * H' * D", root);
 //     return 0;
 // }
