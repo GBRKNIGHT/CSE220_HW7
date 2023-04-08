@@ -350,12 +350,13 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
     }
     // printf("BST: %p\n", root);
     char* pos_expr = infix2postfix_sf(expr);
+    // printf("%s \n", pos_expr);
     int exp_len = strlen(pos_expr);
     matrix_sf** matrix_stack = (matrix_sf**)malloc(sizeof(matrix_sf**) * (exp_len));
     int stack_counter = 0;
     for(int i = 0; i < exp_len; i++){
         if(isalnum(pos_expr[i])){
-            printf("Found: %c\n", pos_expr[i]);
+            // printf("Found: %c\n", pos_expr[i]);
             matrix_sf* found_matrix = find_bst_sf(pos_expr[i], root);
             // printf("Matrix Address: %p\n", found_matrix);
             matrix_sf* this_matrix = (copy_matrix(found_matrix->num_rows, found_matrix->num_cols, found_matrix->values));
@@ -384,12 +385,16 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
         else if(pos_expr[i] == '+'){
             matrix_sf* being_add1 = matrix_stack[stack_counter - 2];
             matrix_sf* being_add2 = matrix_stack[stack_counter - 1];
+            // print_matrix_sf(being_add1);
+            // print_matrix_sf(being_add2);
+
             matrix_sf* sum = add_mats_sf(being_add1, being_add2);
+            // print_matrix_sf(sum);
             free(being_add1);
             free(being_add2);
-            stack_counter -= 2;
-            matrix_stack[stack_counter] = sum;
-            stack_counter += 1;
+            matrix_stack[0] = sum;
+            // print_matrix_sf(matrix_stack[0]);
+            stack_counter = 1;
             continue;
         }
         else{
@@ -422,6 +427,7 @@ matrix_sf *execute_script_sf(char *filename) {
     char *string = NULL;
     string = (char *) malloc (size * sizeof(char));
     bytes_read = getline(&string, &size, input);
+    char new_name;
     while(1){
         if (bytes_read == EOF){
             free(string);
@@ -452,7 +458,7 @@ matrix_sf *execute_script_sf(char *filename) {
         {
             // if this is an expression, we need to perform calculations and add the result 
             // to the binary tree. 
-            char new_name = string[0];
+            new_name = string[0];
             char* equal_sign  = strchr(string, '=');
             int index_equal = (int)(equal_sign - string);
             // char* expression = (char*)malloc(sizeof(char)*(strlen(string) - index_equal));
@@ -468,10 +474,11 @@ matrix_sf *execute_script_sf(char *filename) {
     }
     string = NULL;
     if(binary_search_tree != NULL && binary_search_tree->mat != NULL){
-        char result_name = binary_search_tree->mat->name;
-        unsigned int result_NR = binary_search_tree->mat->num_rows;
-        unsigned int result_NC = binary_search_tree->mat->num_cols;
-        int* result_value = binary_search_tree->mat->values;
+        char result_name = new_name;
+        matrix_sf* result_matrix = find_bst_sf(result_name, binary_search_tree);
+        unsigned int result_NR = result_matrix->num_rows;
+        unsigned int result_NC = result_matrix->num_cols;
+        int* result_value = result_matrix->values;
         matrix_sf* result = copy_matrix(result_NR, result_NC, result_value);
         result->name = result_name;
         free_bst_sf(binary_search_tree);
