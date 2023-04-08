@@ -5,7 +5,8 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#define MAX_LINE_LEN 128
+#define MAX_LINE_LEN 1000
+// change to 1000 as announced. 
 
 #ifndef __MATRIX_SF
 #define __MATRIX_SF

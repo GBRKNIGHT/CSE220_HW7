@@ -156,7 +156,7 @@ matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
 // Then separate into a matrix, and return in this standard form. 
 matrix_sf* create_matrix_sf(char name, const char *expr) 
 {
-    char* new_string = (char*)malloc(MAX_LINE_LEN * 8 * sizeof(char)); // max = 128
+    char* new_string = (char*)malloc(MAX_LINE_LEN * 2 * sizeof(char)); // max = 128
     int previous_char = 0; // 
     char* new_str_ptr = new_string;
     while((*expr != '\n') && (*expr != '\0'))
