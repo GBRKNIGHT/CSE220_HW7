@@ -156,7 +156,7 @@ matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
 // Then separate into a matrix, and return in this standard form. 
 matrix_sf* create_matrix_sf(char name, const char *expr) 
 {
-    char* new_string = (char*)malloc(MAX_LINE_LEN * sizeof(char)); // max = 128
+    char* new_string = (char*)malloc(MAX_LINE_LEN * 8 * sizeof(char)); // max = 128
     int previous_char = 0; // 
     char* new_str_ptr = new_string;
     while((*expr != '\n') && (*expr != '\0'))
@@ -349,6 +349,7 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
         return NULL;
     }
     // printf("BST: %p\n", root);
+    // printf("%s \n", expr);
     char* pos_expr = infix2postfix_sf(expr);
     // printf("%s \n", pos_expr);
     int exp_len = strlen(pos_expr);
@@ -392,9 +393,9 @@ matrix_sf* evaluate_expr_sf(char name, char *expr, bst_sf *root) {
             // print_matrix_sf(sum);
             free(being_add1);
             free(being_add2);
-            matrix_stack[0] = sum;
+            matrix_stack[stack_counter-2] = sum;
             // print_matrix_sf(matrix_stack[0]);
-            stack_counter = 1;
+            stack_counter = stack_counter-1;
             continue;
         }
         else{
